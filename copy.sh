@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm -rf "/Users/dasheng/Work/PodBuild"
 noBuildPods=$(cat noBuildSuccess.txt)
 buildAndCopy() {
   isSimulator=$1
