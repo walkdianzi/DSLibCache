@@ -1,5 +1,6 @@
 #!/bin/sh
 
+ruby remove
 rm -rf "/Users/dasheng/Work/PodBuild"
 noBuildPods=$(cat noBuildSuccess.txt)
 buildAndCopy() {
