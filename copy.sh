@@ -1,9 +1,9 @@
 #!/bin/sh
 
-ruby remove
+ruby remove.rb
 rm -rf "/Users/dasheng/Work/PodBuild"
 
-if [ ! -d "noBuildSuccess.txt" ]
+if [ ! -f "noBuildSuccess.txt" ]
 then
   echo "" > noBuildSuccess.txt
 fi
