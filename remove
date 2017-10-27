@@ -6,9 +6,10 @@ target = project.native_targets
 
 target.frameworks_build_phase.files.each do |f|
     if f.file_ref.path == "libPods-DSDemo_Example.a"
-        then
+    then
         puts f.file_ref.path
         f.remove_from_project
+        break
     end
 end
 project.save

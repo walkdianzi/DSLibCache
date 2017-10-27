@@ -17,3 +17,12 @@ gem install xcodeproj
 修改`remove`里的`DSDemo.xcodeproj`和`DSDemo_Example`为你实际的工程名和target名。
 
 修改`copy.sh`里的`/Users/dasheng/Work`目录为你实际想要放置的目录
+
+## 输出
+
+下面是log输出：
+
+表示从Podfile.lock读出所有pod的名字跟版本，写入PodInfo.txt的时间
+```
+write PodInfo.txt duration:时间
+```

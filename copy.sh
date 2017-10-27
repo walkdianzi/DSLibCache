@@ -2,6 +2,11 @@
 
 ruby remove
 rm -rf "/Users/dasheng/Work/PodBuild"
+
+if [ ! -d "noBuildSuccess.txt" ]
+then
+  echo "" > noBuildSuccess.txt
+fi
 noBuildPods=$(cat noBuildSuccess.txt)
 buildAndCopy() {
   isSimulator=$1
@@ -11,7 +16,7 @@ buildAndCopy() {
   podVersion=$5
 
   #如果是不需要编译生成静态库的则返回
-  result=$(echo $noBuildPods | grep "${podName}")
+  result=$(echo $noBuildPods | grep "${podName}$")
   if [ -n "$result" ]
   then
     echo "dasheng noBuild $podName"
@@ -38,7 +43,6 @@ buildAndCopy() {
     return
   fi
 
-
   echo "dasheng beginbuild $podName $podVersion"
   if [ "${isSimulator}" = true ] 
   then
@@ -57,7 +61,6 @@ buildAndCopy() {
     fi
     cp -fR "${sourceFolder}/$podName" "${CONFIGURATION_BUILD_DIR}"
   else
-    echo "aaaaa $podName"
     echo $podName >> noBuildSuccess.txt
   fi
 }
@@ -80,7 +83,6 @@ copyLib() {
   fi
   
   folderVersion=${desFolder}"/$1/$2"
-  
   #如果本地不存在此版本的pod，则运行build生成
   if [ ! -d "$folderVersion" ]
   then
@@ -110,8 +112,7 @@ writeRebuild() {
     fi
 }
 
-timeNow=$(date +%M%S)
-echo "begin write PodInfo.txt"$timeNow
+timeNow=$(date +%s)
 cat Podfile.lock | while read line
 do
     podName=$(echo $line | grep -Eo '\- [a-zA-Z0-9_+]+' | grep -Eo '[a-zA-Z0-9_+]+')
@@ -137,8 +138,9 @@ do
       getRebuildPod=true
     fi
 done
-timeNow=$(date +%M%S)
-echo "end write PodInfo.txt"$timeNow
+timeNow2=$(date +%s)
+duration=$(($timeNow2 - $timeNow))
+echo "write PodInfo.txt duration:"$duration
 
 timeNow=$(date +%M%S)
 echo "begin build Pod"$timeNow
