@@ -91,18 +91,21 @@ do
     arr=($line)
     podName=${arr[0]}
     podVersion=${arr[1]}
-    if [ -n "$podName" ] && [ -n "$podVersion" ] && [ -f "alwaysBuildPods.txt" ]
+    if [ -n "$podName" ] && [ -n "$podVersion" ]
     then
-      result=$(cat alwaysBuildPods.txt | grep "::${podName}::")
-      #是否缓存，每次都需要重新编译的不缓存
-      if [ -n "$result" ]
+      if [ -f "alwaysBuildPods.txt" ]
       then
-        copyLib "$podName" "$podVersion" false
+        result=$(cat alwaysBuildPods.txt | grep "::${podName}::")
+        #是否缓存，每次都需要重新编译的不缓存
+        if [ -n "$result" ]
+        then
+          copyLib "$podName" "$podVersion" false
+        else
+          copyLib "$podName" "$podVersion" true
+        fi
       else
         copyLib "$podName" "$podVersion" true
       fi
-    else
-      copyLib "$podName" "$podVersion" true
     fi
 done
 timeNow2=$(date +%s)
