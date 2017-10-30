@@ -9,8 +9,10 @@ import shutil
 
 alwaysBuildPodStr="::"
 def writeAlwaysBuild(line):
-    if line[0] != ":":
+    line=line.strip()
+    if len(line)>0 and line[0] != ":":
         podName = re.findall(r"\b[\w+-]+|$", line)[0]
+        global alwaysBuildPodStr
         alwaysBuildPodStr=alwaysBuildPodStr+podName+"::"
 
 #获取所有要build的target
