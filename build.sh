@@ -1,28 +1,14 @@
 export LC_ALL=en_US.UTF-8
 #!/bin/sh
 
-ruby remove.rb
 rm -rf "/Users/dasheng/Work/PodBuild"
 
-if [ ! -f "noBuildSuccess.txt" ]
-then
-  echo "" > noBuildSuccess.txt
-fi
-noBuildPods=$(cat noBuildSuccess.txt)
 buildAndCopy() {
   isSimulator=$1
   isCache=$2
   folderVersion=$3
   podName=$4
   podVersion=$5
-
-  #如果是不需要编译生成静态库的则返回
-  result=$(echo $noBuildPods | grep "${podName}$")
-  if [ -n "$result" ]
-  then
-    echo "dasheng noBuild $podName"
-    return
-  fi
 
   #如果已经编译生成过的则copy并返回
   device=""
@@ -62,7 +48,7 @@ buildAndCopy() {
     fi
     cp -fR "${sourceFolder}/$podName" "${CONFIGURATION_BUILD_DIR}"
   else
-    echo $podName >> noBuildSuccess.txt
+    echo "dasheng buildFail:$podName"
   fi
 }
 
@@ -97,63 +83,17 @@ copyLib() {
   fi
 }
 
-echo "" > podInfo.txt
-echo "" > rebuild.txt
-getRebuildPod=false
-
-export rebuildPodStr="::"
-writeRebuild() {
-    line=$1
-    firstChar=$(echo "${line:0:1}")
-    if [ -n "$firstChar" ] && [ "$firstChar" != ":" ]
-    then
-      podName=$(echo "${line}" | grep -Eo '[a-zA-Z0-9_]+')
-      rebuildPodStr=${rebuildPodStr}${podName}"::"
-      echo $rebuildPodStr > rebuild.txt
-    fi
-}
 
 timeNow=$(date +%s)
-cat Podfile.lock | while read line
-do
-    podName=$(echo $line | grep -Eo '\- [a-zA-Z0-9_+]+' | grep -Eo '[a-zA-Z0-9_+]+')
-    podVersion=$(echo $line | grep -Eo '\([a-zA-Z0-9.= -]+\)' | grep -Eo '[a-zA-Z0-9.-]+')
-    result=$(cat podInfo.txt | grep "${podName}")
-    if [ -n "$podName" ] && [ -n "$podVersion" ] && [ -z "${result}" ]
-    then
-      echo "$podName:$podVersion" >> podInfo.txt
-    fi
-
-    if [ "$line"x = "CHECKOUT OPTIONS:"x ]
-    then
-      getRebuildPod=false
-    fi
-
-    if [ "${getRebuildPod}" = true ]
-    then
-      writeRebuild "$line"
-    fi
-
-    if [ "$line"x = "EXTERNAL SOURCES:"x ]
-    then
-      getRebuildPod=true
-    fi
-done
-timeNow2=$(date +%s)
-duration=$(($timeNow2 - $timeNow))
-echo "write PodInfo.txt duration:"$duration
-
-timeNow=$(date +%M%S)
-echo "begin build Pod"$timeNow
 cat podInfo.txt | while read line
 do
     IFS=':' 
     arr=($line)
     podName=${arr[0]}
     podVersion=${arr[1]}
-    if [ -n "$podName" ] && [ -n "$podVersion" ]
+    if [ -n "$podName" ] && [ -n "$podVersion" ] && [ -f "alwaysBuildPods.txt" ]
     then
-      result=$(cat rebuild.txt | grep "::${podName}::")
+      result=$(cat alwaysBuildPods.txt | grep "::${podName}::")
       #是否缓存，每次都需要重新编译的不缓存
       if [ -n "$result" ]
       then
@@ -161,8 +101,10 @@ do
       else
         copyLib "$podName" "$podVersion" true
       fi
+    else
+      copyLib "$podName" "$podVersion" true
     fi
 done
-timeNow=$(date +%M%S)
-echo "end build Pod"$timeNow
-
+timeNow2=$(date +%s)
+duration=$(($timeNow2 - $timeNow))
+echo "dasheng build Pod duration:"$duration
