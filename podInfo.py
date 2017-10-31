@@ -40,7 +40,7 @@ for line in file:
     if podName and podVersion and podInfoString.find(podName+":"+podVersion+"\n") == -1 and targetsMap.has_key(podName):
         podInfoString=podInfoString+podName+":"+podVersion+"\n"
         f.write(podName+":"+podVersion+"\n")
-    if line.find("CHECKOUT OPTIONS:") > -1:
+    if line.find("CHECKOUT OPTIONS:") > -1 or len(line.strip()) == 0:
         getRebuildPod=False
     if getRebuildPod==True:
         writeAlwaysBuild(line)
