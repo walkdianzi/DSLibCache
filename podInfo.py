@@ -52,5 +52,5 @@ os.remove("targetsInfo.txt")
 if alwaysBuildPodStr=="::":
     os.remove("alwaysBuildPods.txt")
 else:
-    alwaysBuildFile=open('alwaysBuildPods.txt','a')
+    alwaysBuildFile=open('alwaysBuildPods.txt','w')
     alwaysBuildFile.write(alwaysBuildPodStr)
